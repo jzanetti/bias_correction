@@ -1,0 +1,22 @@
+library(ggplot2)
+library(xgboost)
+library(caret)  # for train_test_split equivalent
+source("process/r/constants.R")
+source("process/r/data.R")
+source("process/r/bc.R")
+source("process/r/method.R")
+source("process/r/eval.R")
+source("process/r/vis.R")
+
+# data <- makeup_data(create_plot=TRUE)
+
+data <- list(
+  obs = as.numeric(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)),
+  fcst = as.numeric(c(3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17))
+)
+
+plot_data(data, output_dir = "test2")
+
+output <- start_bc(data$obs, data$fcst, test_size=0.5, method="linear_regression", show_metrics=TRUE)
+
+export(output)

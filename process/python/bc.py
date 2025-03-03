@@ -87,3 +87,5 @@ def start_bc(
         print("Training evaluation:")
         print(metrics)
         print("<><><><><><><><><><><><>")
+
+    return {"model": results["model"], "metrics": metrics}

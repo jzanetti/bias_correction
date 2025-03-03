@@ -82,7 +82,7 @@ start_bc <- function(
   # Prepare data for XGBoost
   x <- matrix(fcst, ncol = 1)  # Features as a matrix
   y <- obs                     # Target as a vector
-  
+
   # Split data into train and test sets
   train_index <- createDataPartition(y, p = 1 - test_size, list = FALSE)
   x_train <- x[train_index, , drop = FALSE]
@@ -120,7 +120,6 @@ start_bc <- function(
   return(
     list(
       model=results$model,
-      prd=results$y_pred,
       metrics=metrics
     )
   )

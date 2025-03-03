@@ -1,9 +1,9 @@
 from numpy.random import normal as numpy_normal
-from matplotlib.pyplot import plot, savefig, close
-from process.python import TMP_DIR
-from os.path import join
+from os.path import join, exists
+from os import makedirs
 from numpy import array as numpy_array
 from sklearn.model_selection import train_test_split
+from pickle import dump as pickle_dump
 
 
 def prep_data(
@@ -48,7 +48,6 @@ def makeup_data(
         "obs": {"mean": 100.0, "std": 5.0},
         "fcst": {"mean": 105.0, "std": 6.3},
     },
-    create_plot: bool = False,
 ):
     """Generate synthetic data following normal distributions for observation and forecast.
 
@@ -61,7 +60,6 @@ def makeup_data(
                 "fcst": {"mean": float, "std": float}
             }
             Defaults to observation mean=100.0, std=5.0 and forecast mean=105.0, std=6.3.
-        create_plot (boolean): if create a plot for the data. Defaults to False
 
     Returns:
         dict: Dictionary containing lists of generated data with keys "obs" and "fcst",
@@ -77,10 +75,23 @@ def makeup_data(
             normal_cfg[data_type]["mean"], normal_cfg[data_type]["std"], data_size
         ).tolist()
 
-    if create_plot:
-        for data_type in ["obs", "fcst"]:
-            plot(output[data_type], label=data_type)
-        savefig(join(TMP_DIR, data_type + ".png"))
-        close()
-
     return output
+
+
+def export(output: dict, output_dir: str = ""):
+    """
+    Exports a dictionary to a pickle file.
+
+    Args:
+        output (dict): The dictionary to be exported.
+        output_dir (str, optional): The directory where the pickle file will be saved.
+                                     Defaults to the current working directory.
+    """
+
+    if not exists(output_dir) and len(output_dir) > 0:
+        makedirs(output_dir)
+
+    pickle_dump(
+        output,
+        open(join(output_dir, "bc_output.pickle"), "wb"),
+    )

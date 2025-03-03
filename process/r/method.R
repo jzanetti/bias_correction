@@ -80,7 +80,6 @@ run_linear_regression <- function(
     cfg
 ) {
   require(caret)
-  
   # Combine training data into a data frame
   train_data <- data.frame(x_train, y = y_train)
   

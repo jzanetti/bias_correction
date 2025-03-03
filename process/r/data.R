@@ -18,8 +18,7 @@ makeup_data <- function(
     normal_cfg = list(
       "obs" = list("mean" = 100.0, "std" = 5.0),
       "fcst" = list("mean" = 105.0, "std" = 6.3)
-    ),
-    create_plot = FALSE
+    )
 ) {
   # Initialize output list
   output <- list()
@@ -34,7 +33,7 @@ makeup_data <- function(
   }
   
   # Create plots if requested using ggplot2
-  if (create_plot) {
+  if (3==2) {
     # Create a data frame for ggplot
     plot_data <- data.frame(
       Index = rep(1:data_size, 2),
@@ -57,4 +56,26 @@ makeup_data <- function(
   }
   
   return(output)
+}
+
+#' Exports an R object to an RData file.
+#'
+#' This function saves an R object, typically a list containing models or other data,
+#' to an RData file. This is useful for persisting R objects to disk for later use.
+#'
+#' @param output The R object (e.g., list, data frame, model) to be exported.
+#' @param output_dir (character, optional) The directory where the RData file will be saved.
+#'                    Defaults to the current working directory.
+#'
+#' @examples
+#' # Assuming 'my_data' is an R object you want to save:
+#' # export_r(my_data, "path/to/my/directory")
+#' # export_r(my_data) # Saves to the current working directory.
+#'
+export <- function(output, output_dir = "") {
+  output_file <- "bc_output.RData"
+  if (nchar(output_dir) > 0) {
+    output_file <- file.path(output_dir, "bc_output.RData")
+  }
+  save(output, file = output_file)
 }
