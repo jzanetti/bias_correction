@@ -20,3 +20,6 @@ plot_data(data, output_dir = "test2")
 output <- start_bc(data$obs, data$fcst, test_size=0.5, method="linear_regression", show_metrics=TRUE)
 
 export(output)
+
+
+source("simple_bc/bc.R")

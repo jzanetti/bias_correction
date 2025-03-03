@@ -13,6 +13,8 @@
 #' 
 #' @note Requires ggplot2 package for plotting functionality when create_plot = TRUE
 #' 
+#' @export
+#' 
 makeup_data <- function(
     data_size = 1000,
     normal_cfg = list(
@@ -71,7 +73,9 @@ makeup_data <- function(
 #' # Assuming 'my_data' is an R object you want to save:
 #' # export_r(my_data, "path/to/my/directory")
 #' # export_r(my_data) # Saves to the current working directory.
-#'
+#' 
+#' @export
+#' 
 export <- function(output, output_dir = "") {
   output_file <- "bc_output.RData"
   if (nchar(output_dir) > 0) {

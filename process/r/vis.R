@@ -1,18 +1,19 @@
-  #' Generate and save plots for observed and forecast data.
-  #'
-  #' This function creates visualization plots for both observed ('obs') and
-  #' forecast ('fcst') data from the input list and saves them to the
-  #' specified output directory using ggplot2.
-  #'
-  #' @param data_dict A named list containing data to plot with elements 'obs' and
-  #'   'fcst' representing observed and forecast data respectively.
-  #' @param output_dir Character string specifying the directory path where
-  #'   plots will be saved. Defaults to tempdir().
-  #' @return Nothing is returned; the function saves plot files to disk and
-  #'   prints their locations.
-  #' @note Requires ggplot2 and dplyr packages.
-
-  # Combine data into a single data frame for ggplot
+#' Generate and save plots for observed and forecast data.
+#'
+#' This function creates visualization plots for both observed ('obs') and
+#' forecast ('fcst') data from the input list and saves them to the
+#' specified output directory using ggplot2.
+#'
+#' @param data_dict A named list containing data to plot with elements 'obs' and
+#'   'fcst' representing observed and forecast data respectively.
+#' @param output_dir Character string specifying the directory path where
+#'   plots will be saved. Defaults to tempdir().
+#' @return Nothing is returned; the function saves plot files to disk and
+#'   prints their locations.
+#' @note Requires ggplot2 and dplyr packages.
+#' 
+#' @export
+#' 
 
 plot_data <- function(data_dict, output_dir = tempdir()) {
   plot_data <- data.frame(

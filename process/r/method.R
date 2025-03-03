@@ -11,7 +11,9 @@
 #' @return Numeric vector of predictions for x_test
 #' 
 #' @note Requires xgboost package
-
+#' 
+#' @export
+#'
 # Ensure xgboost is loaded
 run_xgboost <- function(
     x_train,
