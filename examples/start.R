@@ -8,18 +8,10 @@ source("process/r/method.R")
 source("process/r/eval.R")
 source("process/r/vis.R")
 
-# data <- makeup_data(create_plot=TRUE)
+data <- makeup_data()
 
-data <- list(
-  obs = as.numeric(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)),
-  fcst = as.numeric(c(3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17))
-)
+plot_data(data, output_dir = "test_r")
 
-plot_data(data, output_dir = "test2")
+output <- start_bc(data$obs, data$fcst, data$covariants, test_size=0.2, method="linear_regression", show_metrics=TRUE)
 
-output <- start_bc(data$obs, data$fcst, test_size=0.5, method="linear_regression", show_metrics=TRUE)
-
-export(output)
-
-
-source("simple_bc/bc.R")
+export(output, output_dir="test_r")

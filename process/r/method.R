@@ -81,6 +81,7 @@ run_linear_regression <- function(
     x_test,
     cfg
 ) {
+  
   require(caret)
   # Combine training data into a data frame
   train_data <- data.frame(x_train, y = y_train)
@@ -97,8 +98,8 @@ run_linear_regression <- function(
   )
   
   # Make predictions
-  colnames(x_test) <- colnames(train_data)[[
-    1:(length(colnames(train_data)) - 1)]]
+  colnames(x_test) <- colnames(train_data)[
+    1:(length(colnames(train_data)) - 1)]
   y_pred <- predict(lm_model, newdata = x_test)
 
   return(list(model = lm_model, y_pred = as.data.frame(y_pred)))

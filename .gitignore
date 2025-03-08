@@ -3,3 +3,8 @@
 .RData
 .Ruserdata
 *.pyc
+*.pickle
+*.egg-info
+dist
+test
+bc_output.RData
