@@ -4,7 +4,7 @@ from sklearn.metrics import mean_squared_error
 from process.python.data import prep_data
 from process.python.method import run_xgboost
 from process.python.method import run_linear_regression
-from process.python.eval import run_eval
+from process.python.eval import run_eval, run_feature_importance
 
 
 def start_bc(
@@ -78,10 +78,19 @@ def start_bc(
 
     metrics = run_eval(results["y_pred"], data["y_test"])
 
+    feature_importance = run_feature_importance(
+        data["x_train"], data["y_train"], data["x_names"])
+
     if show_metrics:
         print("<><><><><><><><><><><><>")
-        print("Training evaluation:")
+        print("Training evaluation (Metrics):")
         print(metrics)
+        print("Training evaluation (Feature importance):")
+        print(feature_importance)
         print("<><><><><><><><><><><><>")
 
-    return {"model": results["model"], "metrics": metrics, "scaler": data["scaler"]}
+    return {
+        "model": results["model"], 
+        "metrics": metrics, 
+        "scaler": data["scaler"], 
+        "feature_importance": feature_importance}

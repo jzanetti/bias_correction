@@ -1,10 +1,10 @@
-from matplotlib.pyplot import plot, savefig, close, title, legend
+from matplotlib.pyplot import plot, savefig, close, title, legend, scatter, xlabel, ylabel
 from process.python import TMP_DIR
 from os.path import join, exists
 from os import makedirs
 
 
-def plot_data(data_dict: dict, output_dir: str = TMP_DIR):
+def plot_data(data_dict: dict, use_scatter: bool = True, output_dir: str = TMP_DIR):
     """Generate and save plots for observed and forecast data.
 
     This function creates visualization plots for both observed ('obs') and
@@ -20,11 +20,17 @@ def plot_data(data_dict: dict, output_dir: str = TMP_DIR):
     Returns:
         None: The function saves plot files to disk and prints their locations.
     """
-    for data_type in ["obs", "fcst"]:
-        plot(data_dict[data_type], label=data_type)
+
+    if use_scatter:
+        scatter(x=data_dict["obs"], y=data_dict["fcst"])
+        xlabel("obs")
+        ylabel("fcst")
+    else:
+        for data_type in ["obs", "fcst"]:
+            plot(data_dict[data_type], label=data_type)
+            legend()
 
     title("Obs and Fcst")
-    legend()
 
     if not exists(output_dir) and len(output_dir) > 0:
         makedirs(output_dir)

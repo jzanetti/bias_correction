@@ -1,6 +1,7 @@
 library(ggplot2)
 library(xgboost)
-library(caret)  # for train_test_split equivalent
+library(caret)
+library(randomForest)
 source("process/r/constants.R")
 source("process/r/data.R")
 source("process/r/bc.R")
@@ -12,6 +13,14 @@ data <- makeup_data()
 
 plot_data(data, output_dir = "test_r")
 
-output <- start_bc(data$obs, data$fcst, data$covariants, test_size=0.2, method="linear_regression", show_metrics=TRUE)
+output <- start_bc(
+  data$obs, 
+  data$fcst, 
+  data$covariants, 
+  test_size=0.2, 
+  method="xgboost", 
+  show_metrics=TRUE)
 
-export(output, output_dir="test_r")
+export(
+  output, 
+  output_dir="test_r")

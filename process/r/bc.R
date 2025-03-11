@@ -1,51 +1,3 @@
-#' Combine Covariants and Forecast into a Matrix
-#'
-#' This function combines a list of covariant vectors and a forecast vector into a single matrix.
-#' Each covariant and the forecast must have the same length. The resulting matrix has columns
-#' corresponding to each covariant and the forecast.
-#'
-#' @param covariants A named list where each element is a numeric vector representing a covariant.
-#' @param fcst A numeric vector representing the forecast values.
-#' @return A matrix where each column is a covariant or the forecast, with rows corresponding to observations.
-#' @details The function checks that all covariants have the same length as the forecast. If any
-#' covariant length does not match, it stops with an error message. The output matrix has dimensions
-#' n x (k + 1), where n is the length of the vectors and k is the number of covariants.
-#' @examples
-#' covariants <- list(x1 = 1:3, x2 = 4:6)
-#' fcst <- 7:9
-#' combine_covariants_and_fcst(covariants, fcst)
-#' # Returns a 3x3 matrix with columns x1, x2, and fcst
-#' @export
-combine_covariants_and_fcst <- function(covariants, fcst) {
-  # Get length of fcst
-  fcst_length <- length(fcst)
-  
-  # Initialize an empty list to store x_values
-  x_values <- list()
-  
-  covariants_names <- as.list(names(covariants))
-  # Loop over covariant names
-  for (cov_name in covariants_names) {
-    cov_value <- covariants[[cov_name]]  # Double brackets to extract vector from list
-    
-    # Check if lengths match
-    if (length(cov_value) != fcst_length) {
-      stop(sprintf("Covariant %s does not have the same length as fcst", cov_name))
-    }
-    
-    # Append covariant values to the list
-    x_values[[cov_name]] <- cov_value
-  }
-  
-  # Append fcst to the list
-  x_values[["fcst"]] <- fcst
-  x <- as.matrix(do.call(cbind, x_values))
-  
-  covariants_names[[length(covariants_names) + 1]] <- "fcst"
-  
-  return (list(names = covariants_names, value = x))
-}
-
 #' Starts a bias correction procedure using either XGBoost or linear regression.
 #'
 #' This function trains a model to correct the bias between observed and forecasted values.
@@ -128,47 +80,36 @@ start_bc <- function(
     set.seed(random_state)
   }
   
-  x_info <- combine_covariants_and_fcst(covariants, fcst)
-  # x <- matrix(fcst, ncol = 1)  # Features as a matrix
-  y <- obs                     # Target as a vector
-
-  # Split data into train and test sets
-  train_index <- createDataPartition(y, p = 1 - test_size, list = FALSE)
-  x_train <- x_info$value[train_index, , drop = FALSE]
-  x_test <- x_info$value[-train_index, , drop = FALSE]
-  y_train <- y[train_index]
-  y_test <- y[-train_index]
-  
-  scaled_x_train_results <- init_scaler(x_train, x_info$names)
-  
-  x_train = scaled_x_train_results$value
-  scaler = scaled_x_train_results$scaler
-  x_test <- apply_saved_scaler(x_test, scaler, names = x_info$names)
+  data <- prep_data(fcst, obs, covariants)
 
   if (method == "xgboost") {
     results <- run_xgboost(
-      x_train,
-      y_train,
-      x_test,
+      data$x_train,
+      data$y_train,
+      data$x_test,
       cfg$xgboost
     )
   }
   
   if (method == "linear_regression") {
     results <- run_linear_regression(
-      x_train,
-      y_train,
-      x_test,
+      data$x_train,
+      data$y_train,
+      data$x_test,
       cfg$linear_regression
     )
   }
   
-  metrics <- run_eval(results$y_pred, y_test)
+  metrics <- run_eval(results$y_pred, data$y_test)
+  feature_importance = run_feature_importance(
+    data$x_train, data$y_train, data$x_names)
   
   if (show_metrics){
     cat("<><><><><><><><><><><><>\n")
-    cat("Training evaluation:\n")
+    cat("Training evaluation (Metrics):\n")
     print(metrics)
+    cat("Training evaluation (Feature importance):\n")
+    print(feature_importance)
     cat("<><><><><><><><><><><><>\n")
   }
   
@@ -176,7 +117,7 @@ start_bc <- function(
     list(
       model=results$model,
       metrics=metrics,
-      scaler=scaler
+      scaler=data$scaler
     )
   )
   

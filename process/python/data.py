@@ -1,4 +1,4 @@
-from numpy.random import normal as numpy_normal
+
 from os.path import join, exists
 from os import makedirs
 from numpy import array as numpy_array
@@ -7,7 +7,7 @@ from numpy import max as numpy_max
 from sklearn.model_selection import train_test_split
 from pickle import dump as pickle_dump
 from pandas import read_csv
-
+from process.python import TEST_DATA
 
 
 def combine_covariants_and_fcst(covariants: dict, fcst: list) -> numpy_array:
@@ -161,7 +161,7 @@ def init_scaler(x_values: numpy_array, covariants_names: list):
 
 def prep_data(
     fcst: list, obs: list, covariants: dict, test_size: float = 0.2, random_state: int or None = None
-):
+) -> dict:
     x_info = combine_covariants_and_fcst(covariants, fcst)
     y = numpy_array(obs)  # Target (obs) as a 1D array
 
@@ -175,12 +175,16 @@ def prep_data(
     scaler = scaled_x_train_results["scaler"]
     x_test = apply_saved_scaler(x_test, scaler, names = x_info["names"])
 
-    return {"x_train": x_train, "x_test": x_test, "y_train": y_train, "y_test": y_test, "scaler": scaler}
+    return {"x_train": x_train, "x_test": x_test, "y_train": y_train, "y_test": y_test, "scaler": scaler, "x_names": x_info["names"]}
 
 
 def makeup_data():
+    """Make up some test datasets
 
-    test_data = read_csv("examples/etc/test_data.csv")
+    Returns:
+        _type_: _description_
+    """
+    test_data = read_csv(TEST_DATA)
 
     data = {
         "obs": list(test_data["y"]),

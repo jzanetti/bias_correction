@@ -1,3 +1,52 @@
+#' Combine Covariants and Forecast into a Matrix
+#'
+#' This function combines a list of covariant vectors and a forecast vector into a single matrix.
+#' Each covariant and the forecast must have the same length. The resulting matrix has columns
+#' corresponding to each covariant and the forecast.
+#'
+#' @param covariants A named list where each element is a numeric vector representing a covariant.
+#' @param fcst A numeric vector representing the forecast values.
+#' @return A matrix where each column is a covariant or the forecast, with rows corresponding to observations.
+#' @details The function checks that all covariants have the same length as the forecast. If any
+#' covariant length does not match, it stops with an error message. The output matrix has dimensions
+#' n x (k + 1), where n is the length of the vectors and k is the number of covariants.
+#' @examples
+#' covariants <- list(x1 = 1:3, x2 = 4:6)
+#' fcst <- 7:9
+#' combine_covariants_and_fcst(covariants, fcst)
+#' # Returns a 3x3 matrix with columns x1, x2, and fcst
+#' @export
+combine_covariants_and_fcst <- function(covariants, fcst) {
+  # Get length of fcst
+  fcst_length <- length(fcst)
+  
+  # Initialize an empty list to store x_values
+  x_values <- list()
+  
+  covariants_names <- as.list(names(covariants))
+  # Loop over covariant names
+  for (cov_name in covariants_names) {
+    cov_value <- covariants[[cov_name]]  # Double brackets to extract vector from list
+    
+    # Check if lengths match
+    if (length(cov_value) != fcst_length) {
+      stop(sprintf("Covariant %s does not have the same length as fcst", cov_name))
+    }
+    
+    # Append covariant values to the list
+    x_values[[cov_name]] <- cov_value
+  }
+  
+  # Append fcst to the list
+  x_values[["fcst"]] <- fcst
+  x <- as.matrix(do.call(cbind, x_values))
+  
+  covariants_names[[length(covariants_names) + 1]] <- "fcst"
+  
+  return (list(names = covariants_names, value = x))
+}
+
+
 #' Apply Saved Min-Max Scaler to New Data
 #'
 #' Applies a previously computed min-max scaler to new data, transforming it to the range [0, 1]
@@ -95,7 +144,7 @@ init_scaler <- function(x_values, covariants_names) {
 #' @export
 #' 
 makeup_data <- function() {
-  test_data <- read.csv("examples/etc/test_data.csv")
+  test_data <- read.csv(TEST_DATA)
   
   output <- list(
     obs = test_data$y,
@@ -132,4 +181,67 @@ export <- function(output, output_dir = "") {
     output_file <- file.path(output_dir, "bc_output.RData")
   }
   save(output, file = output_file)
+}
+
+
+' Prepare data for modeling by combining, splitting, and scaling
+#'
+#' This function prepares forecasting data by combining forecast values with covariates,
+#' splitting the data into training and test sets, and applying scaling to the features.
+#'
+#' @param fcst Numeric vector. Forecast values to be used as a feature.
+#' @param obs Numeric vector. Observed values to be used as the target variable.
+#' @param covariants Data frame or matrix. Covariate features to be combined with forecast.
+#' @param test_size Numeric, default = 0.2. Proportion of data to use for testing (0 to 1).
+#'
+#' @return A list containing:
+#'   \item{x_train}{Scaled training features (matrix)}
+#'   \item{x_test}{Scaled test features (matrix)}
+#'   \item{y_train}{Training target values (vector)}
+#'   \item{y_test}{Test target values (vector)}
+#'   \item{scaler}{Scaler object/function used for scaling}
+#'   \item{x_names}{Character vector of feature names}
+#'
+#' @details
+#' The function assumes the existence of helper functions:
+#' - combine_covariants_and_fcst(): Combines covariates and forecast
+#' - createDataPartition(): Creates train/test split indices (from caret package)
+#' - init_scaler(): Initializes and applies scaling to training data
+#' - apply_saved_scaler(): Applies saved scaling to test data
+#'
+#' @examples
+#' \dontrun{
+#' fcst <- rnorm(100)
+#' obs <- rnorm(100)
+#' cov <- matrix(rnorm(100 * 3), ncol = 3)
+#' result <- prep_data(fcst, obs, cov, test_size = 0.2)
+#' str(result)
+#' }
+#'
+#' @export
+prep_data <- function(fcst, obs, covariants, test_size = 0.2) {
+  x_info <- combine_covariants_and_fcst(covariants, fcst)
+  y <- obs
+
+  train_index <- createDataPartition(y, p = 1 - test_size, list = FALSE)
+  x_train <- x_info$value[train_index, , drop = FALSE]
+  x_test <- x_info$value[-train_index, , drop = FALSE]
+  y_train <- y[train_index]
+  y_test <- y[-train_index]
+  
+  scaled_x_train_results <- init_scaler(x_train, x_info$names)
+  
+  x_train = scaled_x_train_results$value
+  scaler = scaled_x_train_results$scaler
+  x_test <- apply_saved_scaler(x_test, scaler, names = x_info$names)
+  
+  return (list(
+    x_train=x_train,
+    x_test=x_test,
+    y_train=y_train,
+    y_test=y_test,
+    scaler=scaler,
+    x_names=x_info$names
+  ))
+  
 }
