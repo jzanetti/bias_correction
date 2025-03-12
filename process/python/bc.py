@@ -4,7 +4,8 @@ from sklearn.metrics import mean_squared_error
 from process.python.data import prep_data
 from process.python.method import run_xgboost
 from process.python.method import run_linear_regression
-from process.python.eval import run_eval, run_feature_importance
+from process.python.eval import run_eval, run_feature_importance, run_plot
+from process.python.vis import plot_data
 
 
 def start_bc(
@@ -21,8 +22,7 @@ def start_bc(
             "learning_rate": 0.1,
             "max_depth": 3,
         }
-    },
-    show_metrics=False,
+    }
 ):
     """
     Perform bias correction using specified machine learning method.
@@ -46,8 +46,6 @@ def start_bc(
                 - n_estimators: 100
                 - learning_rate: 0.1
                 - max_depth: 3
-        show_metrics : bool, optional (default=False)
-            If True, print evaluation metrics
 
     Returns: dict
         Results containing the trained model and predictions
@@ -77,17 +75,16 @@ def start_bc(
         )
 
     metrics = run_eval(results["y_pred"], data["y_test"])
-
+    run_plot(fcst, obs, data, results)
     feature_importance = run_feature_importance(
         data["x_train"], data["y_train"], data["x_names"])
 
-    if show_metrics:
-        print("<><><><><><><><><><><><>")
-        print("Training evaluation (Metrics):")
-        print(metrics)
-        print("Training evaluation (Feature importance):")
-        print(feature_importance)
-        print("<><><><><><><><><><><><>")
+    print("<><><><><><><><><><><><>")
+    print("Training evaluation (Metrics):")
+    print(metrics)
+    print("Training evaluation (Feature importance):")
+    print(feature_importance)
+    print("<><><><><><><><><><><><>")
 
     return {
         "model": results["model"], 

@@ -2,6 +2,50 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor
 from numpy import sqrt, array
 from pandas import DataFrame
+from process.python.vis import plot_data
+
+def run_plot(fcst: list, obs: list, data: dict, results: dict):
+    """Generates plots comparing forecast vs observation and data before/after bias correction.
+
+    Args:
+        fcst (list): List of forecast values.
+        obs (list): List of observed values.
+        data (dict): Dictionary with test data, including 'x_test' (array), 'x_names' (list), and 'y_test' (list).
+        results (dict): Dictionary with prediction results, including 'y_pred' (list or array).
+
+    Behavior:
+        Iterates over use_scatter = True and False to produce two sets of plots:
+        - Forecast vs observation plot ('fcst_vs_obs[_scatter].png').
+        - Data comparison plot with before and after bias correction ('fcst_vs_obs[_scatter].png').
+        Both sets are saved as scatter and line plots in the 'test' directory using plot_data().
+        Note: The second plot_data call overwrites the filename from the first; this may be unintended.
+
+    Returns:
+        None: Saves plots to files as a side effect.
+        
+    Examples:
+        >>> fcst = [1.1, 2.2, 3.3]
+        >>> obs = [1, 2, 3]
+        >>> data = {'x_test': [[1, 1.2], [2, 2.3], [3, 3.4]], 'x_names': ['other', 'fcst'], 'y_test': [1, 2, 3]}
+        >>> results = {'y_pred': [1.1, 2.2, 3.3]}
+        >>> run_plot(fcst, obs, data, results)
+    """
+    for use_scatter in [True, False]:
+        filename = f"fcst_vs_obs{'_scatter' if use_scatter else ''}.png"
+        plot_data({"fcst": fcst, "obs": obs}, use_scatter=use_scatter, filename=filename, output_dir="test")
+        plot_data(
+            {
+                "after_bc": results["y_pred"],
+                "before_bc": data["x_test"][:,data["x_names"].index("fcst")],
+                "obs": data["y_test"]
+            }, 
+            use_scatter=use_scatter, 
+            x_name = "obs", 
+            y_names = ["after_bc", "before_bc"],
+            title_str = "Data comparison",
+            filename = filename,
+            output_dir="test"
+        )
 
 
 def run_feature_importance(x: array, y: array, x_names: list, n_estimators: int = 100) -> DataFrame:

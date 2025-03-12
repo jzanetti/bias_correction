@@ -15,56 +15,62 @@
 #' @export
 #' 
 
-plot_data <- function(data_dict, use_scatter = FALSE, output_dir = tempdir()) {
-
-  plot_df <- data.frame(
-    obs = data_dict$obs,
-    fcst = data_dict$fcst,
-    index = 1:length(data_dict$obs)
-  )
+plot_data <- function(
+    data_dict, 
+    use_scatter = TRUE, 
+    output_dir = tempdir(), 
+    x_name = "obs", 
+    y_names = c("fcst"), 
+    title = "Data comparison", 
+    filename = "data_comparison.png"
+) {
+  # Convert data_dict to data frame
+  plot_df <- as.data.frame(data_dict)
   
-  if (use_scatter) {
-    # Scatter plot version
-    p <- ggplot(plot_df, aes(x = obs, y = fcst)) +
-      geom_point(color = "blue", alpha = 0.6) +
-      labs(x = "Observed", y = "Forecast", title = "Observed vs Forecast") +
-      theme_minimal()
-  } else {
-    p <- ggplot(plot_df) +
-      geom_line(
-        aes(x = index, y = obs, color = "Observed"), 
-        linewidth = 1.5,              # Thicker line
-        lineend = "round"        # Rounded line ends
-      ) +
-      geom_line(
-        aes(x = index, y = fcst, color = "Forecast"), 
-        linewidth = 1.5,              # Thicker line
-        lineend = "round"        # Rounded line ends
-      ) +
-      labs(x = "Index", y = "Value", title = "Observed and Forecast",
-           color = "Data Type") +
-      scale_color_manual(values = c("Observed" = "blue", "Forecast" = "red")) +
-      theme_minimal()
+  # Add index for line plots
+  if (!use_scatter) {
+    plot_df$index <- 1:nrow(plot_df)
   }
   
-  p <- p +
+  # Initialize ggplot
+  p <- ggplot(plot_df)
+  
+  if (use_scatter) {
+    # Reshape to long format for scatter plot
+    plot_df_long <- pivot_longer(plot_df, cols = all_of(y_names), names_to = "variable", values_to = "value")
+    p <- p + geom_point(data = plot_df_long, 
+                        aes(x = .data[[x_name]], y = value, color = variable), 
+                        alpha = 0.6) +
+      labs(x = x_name, y = "Value", title = title, color = "Data Type") +
+      scale_color_manual(values = rainbow(length(y_names)))
+  } else {
+    plot_df_long <- pivot_longer(plot_df, cols = c(x_name, y_names), 
+                                 names_to = "variable", values_to = "value")
+    p <- p + geom_line(data = plot_df_long, 
+                       aes(x = index, y = value, color = variable), 
+                       linewidth = 1.5, lineend = "round") +
+      labs(x = "Index", y = "Value", title = title, color = "Data Type") +
+      scale_color_manual(values = rainbow(length(y_names) + 1))
+  }
+  
+  # Apply theme
+  p <- p + 
+    theme_minimal() +
     theme(
       panel.background = element_rect(fill = "white", colour = "white"),
       plot.background = element_rect(fill = "white", colour = "white"),
       panel.border = element_rect(color = "black", fill = NA, linewidth = 1)
     )
   
-  # Create output directory if it doesn't exist
+  # Create output directory
   if (!dir.exists(output_dir) && nchar(output_dir) > 0) {
     dir.create(output_dir, recursive = TRUE)
   }
-
-  # Define output path
-  output_path <- file.path(output_dir, "bc_data.png")
   
-  # Save the plot
-  ggsave(output_path, plot = p, width = 8, height = 6, dpi = 300)
+  # Save plot
+  output_path <- file.path(output_dir, filename)
+  ggsave(output_path, plot = p, width = 8, height = 6, dpi = 300, bg = "white")
+  cat(sprintf("The data figure is saved in %s\n", output_path))
   
-  # Print confirmation
-  cat(sprintf("The makeup data figure is saved in %s\n", output_path))
+  return(p)
 }

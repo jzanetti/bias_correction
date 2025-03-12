@@ -71,8 +71,7 @@ start_bc <- function(
         control_method = "cv",
         cv_folds = 5  
       )
-    ),
-    show_metrics = FALSE
+    )
 ) {
   
   # Set seed if provided
@@ -101,17 +100,17 @@ start_bc <- function(
   }
   
   metrics <- run_eval(results$y_pred, data$y_test)
+  run_plot(fcst, obs, data, results)
   feature_importance = run_feature_importance(
     data$x_train, data$y_train, data$x_names)
   
-  if (show_metrics){
-    cat("<><><><><><><><><><><><>\n")
-    cat("Training evaluation (Metrics):\n")
-    print(metrics)
-    cat("Training evaluation (Feature importance):\n")
-    print(feature_importance)
-    cat("<><><><><><><><><><><><>\n")
-  }
+  cat("<><><><><><><><><><><><>\n")
+  cat("Training evaluation (Metrics):\n")
+  print(metrics)
+  cat("Training evaluation (Feature importance):\n")
+  print(feature_importance)
+  cat("<><><><><><><><><><><><>\n")
+
   
   return(
     list(

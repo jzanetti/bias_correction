@@ -1,4 +1,73 @@
 
+' Run plotting for forecast vs observation and data comparison
+#'
+#' @description
+#' This function generates two sets of plots: one comparing forecast and observation data,
+#' and another comparing data before and after bias correction against observations.
+#' Each set is plotted as both a scatter plot and a line plot, saved to the specified output directory.
+#'
+#' @param fcst Numeric vector of forecast values.
+#' @param obs Numeric vector of observed values.
+#' @param data List containing test data with elements `x_test` (matrix), `x_names` (vector), and `y_test` (vector).
+#' @param results List containing prediction results with a nested `y_pred` element, itself containing a `y_pred` vector.
+#'
+#' @details
+#' The function iterates over `use_scatter = TRUE` and `FALSE` to produce:
+#' - A forecast vs observation plot (`fcst_vs_obs[_scatter].png`).
+#' - A data comparison plot with before and after bias correction (`data_comparison_after_bc[_scatter].png`).
+#' Both plots are saved in the "test_r" directory.
+#'
+#' @return None (invisible NULL); the function saves plots to files as a side effect.
+#'
+#' @examples
+#' \dontrun{
+#'   fcst <- c(1.1, 2.2, 3.3)
+#'   obs <- c(1, 2, 3)
+#'   data <- list(x_test = matrix(c(1, 1.2, 2, 2.3, 3, 3.4), ncol = 2),
+#'                x_names = c("other", "fcst"), y_test = c(1, 2, 3))
+#'   results <- list(y_pred = list(y_pred = c(1.1, 2.2, 3.3)))
+#'   run_plot(fcst, obs, data, results)
+#' }
+#' @export
+#' 
+run_plot <- function(
+    fcst,
+    obs,
+    data,
+    results) {
+
+  for (use_scatter in c(TRUE, FALSE)) {
+    
+    filename <- paste0(
+      "fcst_vs_obs", ifelse(
+        use_scatter, "_scatter", ""), ".png")
+    
+    plot_data(
+      list(fcst=fcst, obs=obs), 
+      use_scatter=use_scatter, 
+      output_dir = "test_r",
+      filename = filename)
+    
+    filename <- paste0(
+      "data_comparison_after_bc", ifelse(
+        use_scatter, "_scatter", ""), ".png")
+  
+    plot_data(
+      data_dict = list(
+        after_bc = results[["y_pred"]]$y_pred,
+        before_bc = data[["x_test"]][, which(data[["x_names"]] == "fcst")],
+        obs = data[["y_test"]]
+      ),
+      use_scatter = use_scatter,
+      x_name = "obs",
+      y_names = c("after_bc", "before_bc"),
+      title = "Data comparison",
+      filename = filename,
+      output_dir = "test_r"
+    )
+  }
+}
+
 
 #' Evaluate regression model performance
 #'

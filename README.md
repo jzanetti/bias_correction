@@ -8,7 +8,6 @@ Both `R` and `Python` interfaces are provided.
 
 For `Python`, the package can be installed via `pip install simple_bc`
 
-
 ## Usage
 
 ### Python
