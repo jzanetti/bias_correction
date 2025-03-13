@@ -159,6 +159,55 @@ def init_scaler(x_values: numpy_array, covariants_names: list):
     }
 
 
+def reverse_scaler(
+    scaled_values: numpy_array, 
+    scaler: dict, 
+    selected_name: str or None = None) -> numpy_array:
+    """
+    Reverse min-max scaling using the provided scaler parameters.
+
+    Parameters:
+        scaled_values : np.ndarray
+            Scaled data as a NumPy array with values in [0, 1], matching the shape of the original data.
+        scaler : dict
+            Dictionary containing 'min' and 'max' arrays from the original scaling (output of init_scaler).
+
+    Returns:
+        np.ndarray
+            Unscaled (original) values as a NumPy array.
+
+    Notes:
+        Reverses the transformation (x - min) / (max - min) to x = scaled * (max - min) + min.
+        Assumes the scaler dictionary has 'min' and 'max' keys with arrays matching the columns of scaled_values.
+
+    Examples:
+        >>> x = np.array([[1, 4], [2, 5], [3, 6]])
+        >>> scaled = init_scaler(x)
+        >>> unscaled = reverse_scaler(scaled['value'], scaled['scaler'])
+        >>> print(unscaled)
+        [[1. 4.]
+         [2. 5.]
+         [3. 6.]]
+    """
+    # Extract min and max from scaler
+    min_vals = scaler["min"]
+    max_vals = scaler["max"]
+
+    # Calculate range (max - min)
+    range_vals = max_vals - min_vals
+
+    # Handle zero-range case (though not strictly necessary for reversal, included for consistency)
+    range_vals[range_vals == 0] = 1
+
+    # Reverse the scaling: scaled * (max - min) + min
+    unscaled_values = scaled_values * range_vals + min_vals
+
+    if selected_name is None:
+        return unscaled_values
+    
+    return unscaled_values[:, scaler["names"].index(selected_name)]
+
+
 def prep_data(
     fcst: list, obs: list, covariants: dict, test_size: float = 0.2, random_state: int or None = None
 ) -> dict:
@@ -173,9 +222,15 @@ def prep_data(
     x_train = scaled_x_train_results["value"]
 
     scaler = scaled_x_train_results["scaler"]
-    x_test = apply_saved_scaler(x_test, scaler, names = x_info["names"])
-
-    return {"x_train": x_train, "x_test": x_test, "y_train": y_train, "y_test": y_test, "scaler": scaler, "x_names": x_info["names"]}
+    x_test2 = apply_saved_scaler(x_test, scaler, names = x_info["names"])
+    reverse_scaler(x_test2, scaler)
+    return {
+        "x_train": x_train, 
+        "x_test": x_test, 
+        "y_train": y_train, 
+        "y_test": y_test, 
+        "scaler": scaler, 
+        "x_names": x_info["names"]}
 
 
 def makeup_data():

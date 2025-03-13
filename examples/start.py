@@ -1,11 +1,11 @@
 from process.python.data import makeup_data
-from process.python.bc import start_bc
+from process.python.bc import train_bc_model
 from process.python.data import export
 from process.python.vis import plot_data
 
 data = makeup_data()
 
-output = start_bc(
+output = train_bc_model(
     data["obs"], 
     data["fcst"], 
     data["covariants"], 

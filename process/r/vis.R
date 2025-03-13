@@ -38,11 +38,20 @@ plot_data <- function(
   if (use_scatter) {
     # Reshape to long format for scatter plot
     plot_df_long <- pivot_longer(plot_df, cols = all_of(y_names), names_to = "variable", values_to = "value")
+    
+    # Calculate the overall min and max across x and y values
+    x_values <- plot_df[[x_name]]
+    y_values <- plot_df_long$value
+    overall_range <- range(c(x_values, y_values), na.rm = TRUE)  #
+    
     p <- p + geom_point(data = plot_df_long, 
                         aes(x = .data[[x_name]], y = value, color = variable), 
                         alpha = 0.6) +
+      geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") +
       labs(x = x_name, y = "Value", title = title, color = "Data Type") +
-      scale_color_manual(values = rainbow(length(y_names)))
+      scale_color_manual(values = rainbow(length(y_names))) +
+      xlim(overall_range) +  # Set x-axis limits to the overall range
+      ylim(overall_range)    # Set y-axis limits to the overall range
   } else {
     plot_df_long <- pivot_longer(plot_df, cols = c(x_name, y_names), 
                                  names_to = "variable", values_to = "value")

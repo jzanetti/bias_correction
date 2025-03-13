@@ -49,18 +49,19 @@ run_plot <- function(
       filename = filename)
     
     filename <- paste0(
-      "data_comparison_after_bc", ifelse(
+      "bc", ifelse(
         use_scatter, "_scatter", ""), ".png")
-  
+
     plot_data(
       data_dict = list(
         after_bc = results[["y_pred"]]$y_pred,
-        before_bc = data[["x_test"]][, which(data[["x_names"]] == "fcst")],
+        before_bc_scaled = data[["x_test"]][, which(data[["x_names"]] == "fcst")],
+        before_bc_raw = reverse_scaler(data[["x_test"]], data[["scaler"]], selected_name="fcst"),
         obs = data[["y_test"]]
       ),
       use_scatter = use_scatter,
       x_name = "obs",
-      y_names = c("after_bc", "before_bc"),
+      y_names = c("after_bc", "before_bc_scaled", "before_bc_raw"),
       title = "Data comparison",
       filename = filename,
       output_dir = "test_r"

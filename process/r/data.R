@@ -159,6 +159,63 @@ makeup_data <- function() {
   return(output)
 }
 
+' Reverse a scaling transformation
+#'
+#' Reverses a min-max scaling operation to convert scaled values back to their original scale.
+#'
+#' @param scaled_values Numeric vector or matrix of scaled values (typically between 0 and 1)
+#' @param scaler List containing scaling parameters with elements:
+#'   \itemize{
+#'     \item min: vector of minimum values used in original scaling
+#'     \item max: vector of maximum values used in original scaling
+#'     \item names: optional vector of column names (if applicable)
+#'   }
+#' @param selected_name Character string specifying a column name to return (optional)
+#'
+#' @return Numeric vector or matrix of unscaled values. If selected_name is provided,
+#'   returns only the specified column as a vector; otherwise returns all unscaled values.
+#'
+#' @details
+#' This function reverses a min-max scaling operation using the formula:
+#' unscaled = scaled * (max - min) + min
+#' It handles zero-range cases by setting the range to 1 to avoid division issues.
+#'
+#' @examples
+#' # Example scaler object
+#' scaler <- list(min = c(0, 10), max = c(100, 20), names = c("A", "B"))
+#' scaled <- matrix(c(0.5, 0.25), ncol = 2)
+#' reverse_scaler(scaled, scaler)  # Returns all columns
+#' reverse_scaler(scaled, scaler, "A")  # Returns only column A
+#' @export
+#' 
+reverse_scaler <- function(scaled_values, scaler, selected_name = NULL) {
+  min_vals <- scaler$min
+  max_vals <- scaler$max
+  
+  # Calculate range (max - min)
+  range_vals <- max_vals - min_vals
+  
+  # Handle zero-range case (set to 1 to match original scaling logic)
+  range_vals[range_vals == 0] <- 1
+  
+  scaled_values_dataframe <- as.data.frame(scaled_values)
+  unscaled_values_dataframe <- copy(scaled_values_dataframe)
+  for (proc_colname in colnames(scaled_values_dataframe)) {
+    unscaled_values_dataframe[[proc_colname]] <-  scaled_values_dataframe[[proc_colname]] * range_vals[[proc_colname]] + min_vals[[proc_colname]]
+  }
+  
+  unscaled_values <- as.matrix(unscaled_values_dataframe)
+  # If no specific column is selected, return all values
+  if (is.null(selected_name)) {
+    return(unscaled_values)
+  }
+  
+  # Return only the selected column based on its name
+  col_index <- match(selected_name, scaler$names)
+  return(unscaled_values[, col_index])
+}
+
+
 #' Exports an R object to an RData file.
 #'
 #' This function saves an R object, typically a list containing models or other data,
@@ -234,7 +291,7 @@ prep_data <- function(fcst, obs, covariants, test_size = 0.2) {
   x_train = scaled_x_train_results$value
   scaler = scaled_x_train_results$scaler
   x_test <- apply_saved_scaler(x_test, scaler, names = x_info$names)
-  
+
   return (list(
     x_train=x_train,
     x_test=x_test,

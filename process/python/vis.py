@@ -1,7 +1,10 @@
-from matplotlib.pyplot import plot, savefig, close, title, legend, scatter, xlabel, ylabel
+from matplotlib.pyplot import plot, savefig, close, title, legend, scatter, xlabel, xlim, ylim, ylabel
 from process.python import TMP_DIR
 from os.path import join, exists
 from os import makedirs
+from numpy import concatenate as numpy_concatenate
+from numpy import min as numpy_min
+from numpy import max as numpy_max
 
 
 def plot_data(
@@ -30,9 +33,19 @@ def plot_data(
     """
 
     if use_scatter:
-        for proc_y_name in y_names:
+        # Calculate global min and max across x and all y values
+        x_vals = data_dict[x_name]
+        all_vals = numpy_concatenate([x_vals] + [data_dict[y] for y in y_names])
+        min_val, max_val = numpy_min(all_vals), numpy_max(all_vals)
+        
+        for i, proc_y_name in enumerate(y_names):
             scatter(x=data_dict[x_name], y=data_dict[proc_y_name], label=proc_y_name, alpha=0.5)
+        
+        plot([min_val, max_val], [min_val, max_val], 'k--', alpha=1.0)
+        xlim(min_val, max_val)
+        ylim(min_val, max_val)
         xlabel(x_name)
+        ylabel("Value")
     else:
         for data_type in [x_name] + y_names:
             plot(data_dict[data_type], label=data_type, alpha=0.5)

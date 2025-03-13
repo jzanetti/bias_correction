@@ -8,7 +8,7 @@ from process.python.eval import run_eval, run_feature_importance, run_plot
 from process.python.vis import plot_data
 
 
-def start_bc(
+def train_bc_model(
     obs: list,
     fcst: list,
     covariants: dict,
@@ -63,21 +63,21 @@ def start_bc(
         >>> results = start_bc(obs, fcst, method="xgboost", show_metrics=True)
     """
 
-    data = prep_data(fcst, obs, covariants, test_size, random_state)
+    training_data = prep_data(fcst, obs, covariants, test_size, random_state)
 
     if method == "xgboost":
         results = run_xgboost(
-            data["x_train"], data["y_train"], data["x_test"], cfg["xgboost"]
+            training_data["x_train"], training_data["y_train"], training_data["x_test"], cfg["xgboost"]
         )
     if method == "linear_regression":
         results = run_linear_regression(
-            data["x_train"], data["y_train"], data["x_test"]
+            training_data["x_train"], training_data["y_train"], training_data["x_test"]
         )
 
-    metrics = run_eval(results["y_pred"], data["y_test"])
-    run_plot(fcst, obs, data, results)
+    metrics = run_eval(results["y_pred"], training_data["y_test"])
+    run_plot(fcst, obs, training_data, results)
     feature_importance = run_feature_importance(
-        data["x_train"], data["y_train"], data["x_names"])
+        training_data["x_train"], training_data["y_train"], training_data["x_names"])
 
     print("<><><><><><><><><><><><>")
     print("Training evaluation (Metrics):")
@@ -89,5 +89,5 @@ def start_bc(
     return {
         "model": results["model"], 
         "metrics": metrics, 
-        "scaler": data["scaler"], 
+        "scaler": training_data["scaler"], 
         "feature_importance": feature_importance}

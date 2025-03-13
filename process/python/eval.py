@@ -3,6 +3,7 @@ from sklearn.ensemble import RandomForestRegressor
 from numpy import sqrt, array
 from pandas import DataFrame
 from process.python.vis import plot_data
+from process.python.data import reverse_scaler
 
 def run_plot(fcst: list, obs: list, data: dict, results: dict):
     """Generates plots comparing forecast vs observation and data before/after bias correction.
@@ -36,14 +37,15 @@ def run_plot(fcst: list, obs: list, data: dict, results: dict):
         plot_data(
             {
                 "after_bc": results["y_pred"],
-                "before_bc": data["x_test"][:,data["x_names"].index("fcst")],
+                "before_bc_scaled": data["x_test"][:,data["x_names"].index("fcst")],
+                "before_bc_raw": reverse_scaler(data["x_test"], data["scaler"], selected_name="fcst"),
                 "obs": data["y_test"]
             }, 
             use_scatter=use_scatter, 
             x_name = "obs", 
-            y_names = ["after_bc", "before_bc"],
+            y_names = ["after_bc", "before_bc_scaled", "before_bc_raw"],
             title_str = "Data comparison",
-            filename = filename,
+            filename = f"bc{'_scatter' if use_scatter else ''}.png",
             output_dir="test"
         )
 

@@ -53,7 +53,7 @@
 #'
 #' @export
 
-start_bc <- function(
+train_bc_model <- function(
     obs,              
     fcst,
     covariants,
@@ -79,30 +79,30 @@ start_bc <- function(
     set.seed(random_state)
   }
   
-  data <- prep_data(fcst, obs, covariants)
+  training_data <- prep_data(fcst, obs, covariants)
 
   if (method == "xgboost") {
     results <- run_xgboost(
-      data$x_train,
-      data$y_train,
-      data$x_test,
+      training_data$x_train,
+      training_data$y_train,
+      training_data$x_test,
       cfg$xgboost
     )
   }
   
   if (method == "linear_regression") {
     results <- run_linear_regression(
-      data$x_train,
-      data$y_train,
-      data$x_test,
+      training_data$x_train,
+      training_data$y_train,
+      training_data$x_test,
       cfg$linear_regression
     )
   }
   
-  metrics <- run_eval(results$y_pred, data$y_test)
-  run_plot(fcst, obs, data, results)
+  metrics <- run_eval(results$y_pred, training_data$y_test)
+  run_plot(fcst, obs, training_data, results)
   feature_importance = run_feature_importance(
-    data$x_train, data$y_train, data$x_names)
+    training_data$x_train, training_data$y_train, training_data$x_names)
   
   cat("<><><><><><><><><><><><>\n")
   cat("Training evaluation (Metrics):\n")
@@ -116,7 +116,7 @@ start_bc <- function(
     list(
       model=results$model,
       metrics=metrics,
-      scaler=data$scaler
+      scaler=training_data$scaler
     )
   )
   
