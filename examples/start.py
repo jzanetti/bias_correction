@@ -1,5 +1,5 @@
 from process.python.data import makeup_data
-from process.python.bc import train_bc_model
+from process.python.train import train_bc_model
 from process.python.data import export
 from process.python.vis import plot_data
 
