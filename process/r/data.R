@@ -233,9 +233,8 @@ reverse_scaler <- function(scaled_values, scaler, selected_name = NULL) {
 #' @export
 #' 
 export <- function(output, output_dir = "") {
-  output_file <- "bc_output.RData"
   if (nchar(output_dir) > 0) {
-    output_file <- file.path(output_dir, "bc_output.RData")
+    output_file <- file.path(output_dir, TRAINING_OUTPUT_FILENAME)
   }
   save(output, file = output_file)
 }

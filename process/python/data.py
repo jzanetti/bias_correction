@@ -7,7 +7,7 @@ from numpy import max as numpy_max
 from sklearn.model_selection import train_test_split
 from pickle import dump as pickle_dump
 from pandas import read_csv
-from process.python import TEST_DATA
+from process.python import TEST_DATA, TRAINING_OUTPUT_FILENAME
 
 
 def combine_covariants_and_fcst(covariants: dict, fcst: list) -> numpy_array:
@@ -269,5 +269,5 @@ def export(output: dict, output_dir: str = ""):
 
     pickle_dump(
         output,
-        open(join(output_dir, "bc_output.pickle"), "wb"),
+        open(join(output_dir, TRAINING_OUTPUT_FILENAME), "wb"),
     )

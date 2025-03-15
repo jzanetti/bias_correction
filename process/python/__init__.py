@@ -7,3 +7,5 @@ if not exists(TMP_DIR):
     makedirs(TMP_DIR)
 
 TEST_DATA = "examples/etc/test_data.csv"
+
+TRAINING_OUTPUT_FILENAME = "training_output.pickle"
