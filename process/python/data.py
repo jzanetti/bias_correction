@@ -222,8 +222,8 @@ def prep_data(
     x_train = scaled_x_train_results["value"]
 
     scaler = scaled_x_train_results["scaler"]
-    x_test2 = apply_saved_scaler(x_test, scaler, names = x_info["names"])
-    reverse_scaler(x_test2, scaler)
+    x_test = apply_saved_scaler(x_test, scaler, names = x_info["names"])
+
     return {
         "x_train": x_train, 
         "x_test": x_test, 

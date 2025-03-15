@@ -13,7 +13,7 @@ source("process/r/vis.R")
 
 data <- makeup_data()
 
-output <- start_bc(
+output <- train_bc_model(
   data$obs, 
   data$fcst, 
   data$covariants, 

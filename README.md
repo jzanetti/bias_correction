@@ -10,23 +10,124 @@ For `Python`, the package can be installed via `pip install simple_bc`
 
 ## Usage
 
-### Python
-After the installation, the bias correction can be run as:
+### Model training:
 
+To train the model using existing forecasts, covariates, and observations, the data must be organized in a specific format:
+
+<table> <tr> <th>Python</th> <th>R</th> </tr> <tr> <td>
+
+In `Python`, inputs must be organized within a dictionary, as shown in the example below:
 ```
-from simple_bc import bc
 data = {
     "obs": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    "fcst": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    "fcst": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    "covariants": {
+        "var1": [1, 2, 3, ...],
+        "var2": [1.1, 2.2, 3.3, ...],
+        ...
+    }
 }
-bc.run_bc(data=data, create_plot=True, show_metrics=True, test_size=0.2, method="linear_regression", output_dir="test")
 ```
 
-If the `data` argument is not provided, some random data will be created and the function will be run for a demostration purpose. The default values will be assigned to other arguments as well.
+The dictionary must include three required keys: `obs`, `fcst`, and `covariants`.
+
+- The `obs` key stores a list of observed values.
+- The `fcst` key stores a list of forecast values.
+- The `covariants` key holds a nested dictionary where each key (e.g., `var1`, `var2`) maps to a list of covariate values.
+
+All values associated with obs, fcst, and the entries within `covariants` must be provided as **lists**.
+
+</td> <td>
+
+In `R`, inputs must be organized within a `R list`, as shown in the example below:
 ```
-from simple_bc import bc
-bc.run_bc()
+  output <- list(
+    obs = c(1,2,3,...),
+    fcst = c(3,5,6,...),
+    covariants = list(
+      var1 = c(2,4,1,...),
+      var2 = c(1,5,6,...),
+      ...
+    )
+  )
 ```
+Similar to the requirement by `python`, three keys `obs`, `fcst` and `covariants` are required for `R`.
+
+</td> </tr> </table>
+
+As an example, some sample data can be obtained by:
+
+<table> <tr> <th>Python</th> <th>R</th> </tr> <tr> <td>
+
+```
+from process.python.data import makeup_data
+data = makeup_data()
+```
+</td> <td>
+
+```
+source("process/r/data.R")
+data <- makeup_data()
+```
+</td> </tr> </table>
+
+The model can be trained using the function `train_bc_model`. `Python` and `R` can be operated in a similar way. For example:
+
+<table> <tr> <th>Python</th> <th>R</th> </tr> <tr> <td>
+
+For `Python`, the model can be trained using the following code:
+
+```
+output = train_bc_model(
+    data["obs"], 
+    data["fcst"], 
+    data["covariants"], 
+    test_size=0.2, 
+    method="xgboost"
+)
+```
+
+The `output` is a dictionary containing the following keys:
+
+- `model`: The trained model, including all parameters.
+- `metrics`: A DataFrame of training metrics, including `RMSE`, `R²`, and `MAE`.
+- `scaler`: The scaler applied to the input data during training.
+- `feature_importance`: Feature importance scores for fcst and all variables in covariants.
+
+During the training process, the following figures are generated to aid in understanding the results:
+
+- `fcst_vs_obs.png`: A plot showing the differences between the fcst and obs data.
+- `bc.png`: A comparison of the data before and after bias correction.
+
+After the training, the output can be saved via the function `export`, such as:
+
+```
+export(output, output_dir="test")
+```
+
+where the output will be stored in a direcotry `test`
+
+</td> <td>
+
+In `R`, the model is trained via:
+```
+output <- train_bc_model(
+  data$obs, 
+  data$fcst, 
+  data$covariants, 
+  test_size=0.2, 
+  method="xgboost")
+```
+Similar to `python`, the output can be saved with:
+
+```
+export(
+  output, 
+  output_dir="test_r")
+```
+
+</td> </tr> </table>
+
 
 ## For developers:
 The development working environment can be set up by:
