@@ -126,6 +126,8 @@ export(
   output_dir="test_r")
 ```
 
+where the output will be stored in a direcotry `test_r`
+
 </td> </tr> </table>
 
 
