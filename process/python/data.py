@@ -208,8 +208,8 @@ def reverse_scaler(
     return unscaled_values[:, scaler["names"].index(selected_name)]
 
 
-def prep_data(
-    fcst: list, obs: list, covariants: dict, test_size: float = 0.2, random_state: int or None = None
+def prep_data_for_training(
+    fcst: list, covariants: dict, obs: list, test_size: float = 0.2, random_state: int or None = None
 ) -> dict:
     x_info = combine_covariants_and_fcst(covariants, fcst)
     y = numpy_array(obs)  # Target (obs) as a 1D array
@@ -231,6 +231,31 @@ def prep_data(
         "y_test": y_test, 
         "scaler": scaler, 
         "x_names": x_info["names"]}
+
+
+def prep_data_for_predicting(fcst: list, covariants: dict, scaler: dict) -> numpy_array:
+    """
+    Prepares data for prediction by combining forecasts and covariants, and applying a saved scaler.
+
+    Args:
+        fcst (list): A list representing the forecast values.
+        covariants (dict): A dictionary containing covariant data. The structure is assumed to be
+            compatible with the `combine_covariants_and_fcst` function.
+        scaler (dict): A dictionary containing the saved scaler parameters, as expected by
+            the `apply_saved_scaler` function.
+
+    Returns:
+        numpy.ndarray: A numpy array containing the scaled, combined forecast and covariant data.
+
+    Example:
+        Assuming `combine_covariants_and_fcst` returns a dictionary like:
+        {'value': numpy_array, 'names': list_of_names}
+        and `apply_saved_scaler` applies the scaling and returns a numpy array,
+        this function will combine the forecasts and covariants, scale the resulting values,
+        and return the scaled numpy array.
+    """
+    x_info = combine_covariants_and_fcst(covariants, fcst)
+    return apply_saved_scaler(x_info["value"], scaler, names = x_info["names"])
 
 
 def makeup_data():

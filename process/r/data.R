@@ -270,12 +270,12 @@ export <- function(output, output_dir = "") {
 #' fcst <- rnorm(100)
 #' obs <- rnorm(100)
 #' cov <- matrix(rnorm(100 * 3), ncol = 3)
-#' result <- prep_data(fcst, obs, cov, test_size = 0.2)
+#' result <- prep_data_for_training(fcst, obs, cov, test_size = 0.2)
 #' str(result)
 #' }
 #'
 #' @export
-prep_data <- function(fcst, obs, covariants, test_size = 0.2) {
+prep_data_for_training <- function(fcst, covariants, obs, test_size = 0.2) {
   x_info <- combine_covariants_and_fcst(covariants, fcst)
   y <- obs
 
@@ -301,3 +301,31 @@ prep_data <- function(fcst, obs, covariants, test_size = 0.2) {
   ))
   
 }
+
+#' Prepare data for prediction by combining forecasts and covariants, and applying a saved scaler.
+#'
+#' This function combines forecast values with covariant data, and then applies a previously saved scaler to the combined data.
+#'
+#' @param fcst A list or vector representing the forecast values.
+#' @param covariants A list or data frame containing covariant data, compatible with `combine_covariants_and_fcst`.
+#' @param scaler A list or environment containing the saved scaler parameters, compatible with `apply_saved_scaler`.
+#'
+#' @return A numeric matrix or vector containing the scaled, combined forecast and covariant data.
+#'
+#' @examples
+#' # Assuming combine_covariants_and_fcst and apply_saved_scaler are defined:
+#' # fcst <- c(1, 2, 3)
+#' # covariants <- list(cov1 = c(4, 5, 6), cov2 = c(7, 8, 9))
+#' # scaler <- list(mean = 5, sd = 2) # Example scaler
+#' # prepared_data <- prep_data_for_predicting(fcst, covariants, scaler)
+#' # print(prepared_data)
+#'
+#' @seealso \code{\link{combine_covariants_and_fcst}}, \code{\link{apply_saved_scaler}}
+#'
+#' @export
+prep_data_for_predicting <- function(fcst, covariants, scaler) {
+  x_info <- combine_covariants_and_fcst(covariants, fcst)
+  x <- apply_saved_scaler(x_info$value, scaler, names = x_info$names)
+  return (x)
+}
+

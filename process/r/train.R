@@ -57,8 +57,7 @@ train_bc_model <- function(
     obs,              
     fcst,
     covariants,
-    test_size = 0.2, 
-    random_state = NULL,
+    test_size = 0.2,
     method = "xgboost",
     cfg = list(
       xgboost = list(
@@ -74,12 +73,7 @@ train_bc_model <- function(
     )
 ) {
   
-  # Set seed if provided
-  if (!is.null(random_state)) {
-    set.seed(random_state)
-  }
-  
-  training_data <- prep_data(fcst, obs, covariants)
+  training_data <- prep_data_for_training(fcst, covariants, obs, test_size=test_size)
 
   if (method == "xgboost") {
     results <- run_xgboost(

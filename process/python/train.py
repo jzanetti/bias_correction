@@ -1,7 +1,7 @@
 import xgboost as xgb
 from numpy import array as numpy_array
 from sklearn.metrics import mean_squared_error
-from process.python.data import prep_data
+from process.python.data import prep_data_for_training
 from process.python.method import run_xgboost
 from process.python.method import run_linear_regression
 from process.python.eval import run_eval, run_feature_importance, run_plot
@@ -13,7 +13,6 @@ def train_bc_model(
     fcst: list,
     covariants: dict,
     test_size: float = 0.2,
-    random_state: int or None = None,
     method: str = "xgboost",
     cfg={
         "xgboost": {
@@ -63,7 +62,7 @@ def train_bc_model(
         >>> results = start_bc(obs, fcst, method="xgboost", show_metrics=True)
     """
 
-    training_data = prep_data(fcst, obs, covariants, test_size, random_state)
+    training_data = prep_data_for_training(fcst, covariants, obs, test_size=test_size)
 
     if method == "xgboost":
         results = run_xgboost(
