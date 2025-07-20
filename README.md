@@ -158,46 +158,69 @@ twine upload dist/*
 
 ### R:
 
-Install the following packages:
+For creating a local library for `bias_correction`,
 
-- `devtools`: Install this package to simplify package creation:
-    ```
-    install.packages("devtools")
-    library(devtools)
-    ```
+- Document Functions: add `roxygen2` comments above each function in your .R files to document them. For example:
+  ```
+  #' Add two numbers
+  #' @param x First number
+  #' @param y Second number
+  #' @return Sum of x and y
+  #' @export
+  add_numbers <- function(x, y) {
+    return(x + y)
+  }
+  ```
+  The @export tag makes the function available when the package is loaded.
 
-- `roxygen2`: For generating documentation:
-    ```
-    install.packages("roxygen2")
-    library(roxygen2)
-    ```
 
+- Install the `devtools`, `usethis` and `roxygen2` packages:
+  ```
+  install.packages(c("devtools", "usethis", "roxygen2"), binary = TRUE)
+  ```
 
-- Initialize a Package Structure: Use `devtools` to create a basic package structure. Replace `myPackage` with your desired package name, for example,
-    ```
-    devtools::create("../simpleBC")
-    ```
+- Use usethis to set up the package directory:
+  ```
+  library(usethis)
+  create_package("../SimpleBC")
+  ```
 
-    This creates a directory (`myPackage/`) with: 
-    - `DESCRIPTION`: Metadata about your package (name, version, author, etc.).
-    - `NAMESPACE`: Defines exported functions (auto-generated later).
-    - `R/`: Directory for your R scripts.
+- Add functions
+  - Move R function scripts (e.g., from `process/R`) into the `../SimpleBC/R` folder. For example `cp -rf process/R/*.R ../SimpleBC/R`
 
-- Copy R script to `../simpleBC/R`, e.g.,
-    - `cp -rf simple_bc/bc.R ../simpleBC/R`
-    - `mkdir -p ../simpleBC/R/process/r`
-    - `cp -rf process/r/*.R ../simpleBC/R/process/r`
+- Edit the DESCRIPTION File: Open the DESCRIPTION file in the package directory and fill in details like (within the newly created `../SimpleBC` project):
+  ```
+  Package: SimepleBC
+  Title: Your Package Title
+  Version: 0.1.0
+  Author: Your Name <your.email@example.com>
+  Maintainer: Your Name <your.email@example.com>
+  Description: A brief description of what your package does.
+  License: MIT (or choose another, e.g., GPL-3)
+  Imports: dplyr, tidyr (list dependencies here)
+  ```
+  Specify any dependencies under Imports if your functions rely on other packages.
   
-- Generate documentation and update NAMESPACE: `devtools::document(pkg = "../simpleBC/R")` ~ This creates .Rd files in the man/ directory and updates NAMESPACE to export my_function.
+- Run the following to generate documentation (see Step 1) and update `NAMESPACE` (within the newly created `../SimpleBC` project):
+  ```
+  library(devtools)
+  document()
+  ```
 
-- Fill Out the `DESCRIPTION` File: Edit the `DESCRIPTION` file in myPackage/ to include
+- Install and Test the Package Locally (within the newly created `../SimpleBC` project):
+  - Build and install the package:
+    ```
+    devtools::install()
+    ```
 
-- devtools::check(pkg = "../simpleBC")
-
-- devtools::install(pkg = "../simpleBC")
-
-- devtools::build(pkg = "../simpleBC")
-
-- Test on Multiple Platforms: Use R-hub to test your package: devtools::check_rhub(pkg = "../simpleBC")
-
-- Submit via `https://cran.r-project.org/submit.html`
+  - Build a source package for distribution:
+    ```
+    devtools::build(path = getwd())
+    ```
+  The above will provide a tarball as `SimpleBC.tar.gz`
+  
+  - The package then later can be installed as:
+    ```
+    install.packages("SimpleBC.tar.gz", repos = "https://cran.r-project.org", type = "source")
+    library(SimpleBC)
+    ```
