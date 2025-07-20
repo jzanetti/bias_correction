@@ -1,7 +1,7 @@
 from process.python.data import makeup_data
 from process.python.train import train_bc_model
 from process.python.data import export
-from process.python.predict import predict
+from process.python.predict import predict_bc_model
 from pickle import load as pickle_load
 
 data = makeup_data()
@@ -15,14 +15,14 @@ if RUN_TRAIN:
         data["fcst"], 
         data["covariants"], 
         test_size=0.2, 
-        method="xgboost"
+        method="linear_regression"
     )
 
     export(output, output_dir="test")
 
 if RUN_PREDICT:
     output = pickle_load( open("test/training_output.pickle", "rb" ) )
-    predict(
+    predict_bc_model(
         data["fcst"],
         data["covariants"],
         output["model"],

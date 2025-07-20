@@ -14,7 +14,7 @@ source("process/r/vis.R")
 
 data <- makeup_data()
 
-RUN_TRAIN = FALSE
+RUN_TRAIN = TRUE
 RUN_PREDICT = TRUE
 
 if (RUN_TRAIN) {
@@ -33,7 +33,7 @@ if (RUN_TRAIN) {
 if (RUN_PREDICT) {
   load("test_r/training_output.RData")
   
-  predict(
+  predict_bc_model(
     data$fcst,
     data$covariants,
     output$model,

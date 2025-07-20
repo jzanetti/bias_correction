@@ -130,6 +130,13 @@ where the output will be stored in a direcotry `test_r`
 
 </td> </tr> </table>
 
+### Examples:
+
+The examples for running `bias_correction` can be found in the directory `examples`:
+
+- `python` example: `start.py`
+- `R` example: `start.R`
+
 
 ## For developers:
 The development working environment can be set up by:

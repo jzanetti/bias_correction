@@ -72,7 +72,7 @@ combine_covariants_and_fcst <- function(covariants, fcst) {
 #' print(scaled_test)
 #' @export
 apply_saved_scaler <- function(x_values, scaler, names=NULL) {
-
+  
   if (!is.null(names)){
     if (! identical(scaler$names, names)){
       stop("Scaler does not have consistent names")
@@ -85,6 +85,7 @@ apply_saved_scaler <- function(x_values, scaler, names=NULL) {
   range_vals <- scaler$max - scaler$min
   range_vals[range_vals == 0] <- 1
   scaled_value <- t((t(x_values) - scaler$min) / range_vals)
+  
   return(scaled_value)
 }
 
@@ -276,6 +277,7 @@ export <- function(output, output_dir = "") {
 #'
 #' @export
 prep_data_for_training <- function(fcst, covariants, obs, test_size = 0.2) {
+
   x_info <- combine_covariants_and_fcst(covariants, fcst)
   y <- obs
 
@@ -289,6 +291,7 @@ prep_data_for_training <- function(fcst, covariants, obs, test_size = 0.2) {
   
   x_train = scaled_x_train_results$value
   scaler = scaled_x_train_results$scaler
+  
   x_test <- apply_saved_scaler(x_test, scaler, names = x_info$names)
 
   return (list(
