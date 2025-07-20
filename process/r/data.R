@@ -54,7 +54,7 @@ combine_covariants_and_fcst <- function(covariants, fcst) {
 #'
 #' @param x_values A numeric matrix or data frame with rows as observations and columns as features.
 #'                 The number of columns must match the number of features in the scaler.
-#' @param scaler A list containing `min` and `max` vectors (from a previous call to `apply_scaler`),
+#' @param scaler A list containing `min` and `max` vectors,
 #'               representing the minimum and maximum values for each column of the original data.
 #' @return A matrix of scaled values, with the same dimensions as `x_values`, where each column
 #'         is transformed using the formula `(x - min) / (max - min)`.
@@ -62,13 +62,9 @@ combine_covariants_and_fcst <- function(covariants, fcst) {
 #'          If a column's range (`max - min`) is zero, it is treated as 1 to avoid division by zero.
 #'          The input is coerced to a matrix if it isn’t already one.
 #' @examples
-#' # Training data
-#' x_train <- matrix(c(1, 2, 3, 4, 5, 6), ncol = 2)
-#' result <- apply_scaler(x_train)
-#' 
-#' # Test data
 #' x_test <- matrix(c(2, 3, 5, 6), ncol = 2)
-#' scaled_test <- apply_saved_scaler(x_test, result$scaler)
+# 'scaler <- "123"
+#' scaled_test <- apply_saved_scaler(x_test, scaler)
 #' print(scaled_test)
 #' @export
 apply_saved_scaler <- function(x_values, scaler, names=NULL) {
