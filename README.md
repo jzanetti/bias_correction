@@ -6,8 +6,12 @@ Both `R` and `Python` interfaces are provided.
 
 ## Install:
 
-For `Python`, the package can be installed via `pip install simple_bc`
-
+ - For `Python`, the package can be installed via `pip install simple_bc`
+ - For `R`, taking the provided _tarball_, and install it locally via:
+    ```
+    install.packages("SimpleBC.tar.gz", repos = "https://cran.r-project.org", type = "source")
+    library(SimpleBC)
+    ```
 ## Usage
 
 ### Model training:
