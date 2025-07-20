@@ -215,7 +215,7 @@ For creating a local library for `bias_correction`,
 
   - Build a source package for distribution:
     ```
-    devtools::build(path = getwd())
+    devtools::build(path = paste(getwd(), "..", "bias_correction", sep = "/"))
     ```
   The above will provide a tarball as `SimpleBC.tar.gz`
   
